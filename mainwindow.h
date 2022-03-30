@@ -30,16 +30,18 @@ private:
   int totalItems = 3;
   QPushButton *loadButton;
   QPushButton *quitButton;
+  QPushButton *muteButton; 
   QComboBox* outputSelection;
   QStringList outputList = {"A1", "A3"};
   QVBoxLayout *contentLayout;
 
   QLibrary *lib; 
 
-  int libraryLoaded; 
+  bool libraryLoaded;
+  bool mute; 
 
 
   void logout();
   void getMacroStatus();
-  void mute();
+  void toggleMute();
 };

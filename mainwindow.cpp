@@ -13,7 +13,8 @@
 
 
 MainWindow::MainWindow()
-  :libraryLoaded(-1)
+  :libraryLoaded(false),
+   mute (false)
 {
   // qApp->setStyleSheet("QLabel { color: red; font: bold 14px;}");
   
@@ -26,6 +27,11 @@ MainWindow::MainWindow()
   quitButton = new QPushButton(QString ("Quit"), this);
   connect(quitButton, &QPushButton::clicked, this, &MainWindow::onQuit); 
   topLayout->addWidget(quitButton);
+
+  muteButton = new QPushButton(QString("Toggle Mute"), this);
+  muteButton->setStyleSheet("background-color:green");  
+  connect(muteButton, &QPushButton::clicked, this, &MainWindow::toggleMute);
+  topLayout->addWidget(muteButton);
 
   QPushButton *macroButton = new QPushButton(QString("GetMacroStatus"), this);
   connect(macroButton, &QPushButton::clicked, this, &MainWindow::getMacroStatus);
@@ -86,7 +92,7 @@ void MainWindow::setWindowSizeLocation() {
 void MainWindow::logout()
 {
   long r; 
-  if (libraryLoaded == 1) { 
+  if (libraryLoaded) { 
     VB_Logout logout = (VB_Login) lib->resolve("VBVMR_Logout");
     if (logout) {  
       r = logout();
@@ -103,7 +109,7 @@ void MainWindow::loadVoicemeter(){
       qDebug() << lib->errorString();
   }
   if (lib->load()){
-    libraryLoaded = 1; 
+    libraryLoaded = true; 
     qDebug() << "library loaded";
     VB_Login login = (VB_Login) lib->resolve("VBVMR_Login");
     if (login) {  
@@ -111,14 +117,14 @@ void MainWindow::loadVoicemeter(){
       qDebug() << QString("Login with status: %1").arg(r);
     } 
   } else {
-      libraryLoaded = -1;
+      libraryLoaded = false;
   }
 }
 
 void MainWindow::getMacroStatus() {
   long r;
   float pValue; 
-  if (libraryLoaded == 1) { 
+  if (libraryLoaded) { 
     // VB_MacroButton_GetStatus getStatus = (VB_MacroButton_GetStatus) lib->resolve("VBVMR_MacroButton_GetStatus");
     // if (getStatus) {  
     //   r = getStatus(0,&pValue, VBVMR_MACROBUTTON_MODE_DEFAULT );
@@ -138,5 +144,12 @@ void MainWindow::getMacroStatus() {
   }
 }
 
-void MainWindow::mute(){
+void MainWindow::toggleMute(){
+  if (mute) {
+    mute = false;
+    muteButton->setStyleSheet("background-color:green");
+  } else {
+    mute = true;
+    muteButton->setStyleSheet("background-color:red");
+  }
 }
