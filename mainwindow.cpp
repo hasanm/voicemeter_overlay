@@ -10,6 +10,7 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include "VoicemeeterRemote.h"
+#include "vmr_client.h"
 
 
 MainWindow::MainWindow()
@@ -33,14 +34,14 @@ MainWindow::MainWindow()
   connect(muteButton, &QPushButton::clicked, this, &MainWindow::toggleMute);
   topLayout->addWidget(muteButton);
 
-  QPushButton *macroButton = new QPushButton(QString("GetMacroStatus"), this);
-  connect(macroButton, &QPushButton::clicked, this, &MainWindow::getMacroStatus);
-  topLayout->addWidget(macroButton);
+  // QPushButton *macroButton = new QPushButton(QString("GetMacroStatus"), this);
+  // connect(macroButton, &QPushButton::clicked, this, &MainWindow::getMacroStatus);
+  // topLayout->addWidget(macroButton);
 
-  outputSelection = new QComboBox(this);
-  outputSelection->addItems(outputList);
-  connect(outputSelection, &QComboBox::activated, this, &MainWindow::onOutputSelected); 
-  topLayout->addWidget(outputSelection); 
+  // outputSelection = new QComboBox(this);
+  // outputSelection->addItems(outputList);
+  // connect(outputSelection, &QComboBox::activated, this, &MainWindow::onOutputSelected); 
+  // topLayout->addWidget(outputSelection); 
 
   top->setLayout(topLayout);
 
@@ -79,8 +80,8 @@ void MainWindow::setWindowSizeLocation() {
     QRect rec = screen->availableGeometry();
     qDebug() << "Hello " << rec.width() << " x " << rec.height();
 
-    int targetWidth = this->width();
-    // int targetWidth = 300;
+    // int targetWidth = this->width();
+    int targetWidth = 200;
 
     int height = 180;
     int width = rec.width();
@@ -122,34 +123,49 @@ void MainWindow::loadVoicemeter(){
 }
 
 void MainWindow::getMacroStatus() {
-  long r;
-  float pValue; 
-  if (libraryLoaded) { 
-    // VB_MacroButton_GetStatus getStatus = (VB_MacroButton_GetStatus) lib->resolve("VBVMR_MacroButton_GetStatus");
-    // if (getStatus) {  
-    //   r = getStatus(0,&pValue, VBVMR_MACROBUTTON_MODE_DEFAULT );
-    //   qDebug() << QString("GetStatus with status: %1").arg(r);
-    // }
-
-    VB_SetParameterFloat setParameter = (VB_SetParameterFloat) lib->resolve("VBVMR_SetParameterFloat");
-    if (setParameter) {
-      char* mbstr = new char[1024]; // "strip[0].mute";
-      strcpy(mbstr, "strip[0].mute");
-      r =  setParameter(mbstr, 0.0f);
-      qDebug() << QString("SetParameter with status: %1").arg(r);
-      delete[]
-
-      mbstr;
-    }
-  }
+  qDebug() << "Get Parameter : " << this->getParameterFloat(QString("strip[0].mute"));
 }
 
 void MainWindow::toggleMute(){
   if (mute) {
     mute = false;
     muteButton->setStyleSheet("background-color:green");
+    this->setParameterFloat(QString ("strip[0].mute"), 0.0f);
   } else {
     mute = true;
     muteButton->setStyleSheet("background-color:red");
+    this->setParameterFloat(QString ("strip[0].mute"), 1.0f);    
   }
 }
+
+void MainWindow::setParameterFloat(QString parameter, float pValue) {
+  long r;
+  if (libraryLoaded) {
+    VB_SetParameterFloat setParameter = (VB_SetParameterFloat) lib->resolve("VBVMR_SetParameterFloat");
+    if (setParameter) {
+      char *mbstr = new char[1024]; 
+      strcpy(mbstr,"strip[0].mute");
+      r = setParameter(mbstr, pValue);
+      qDebug() << "Parameter Value: " << r; 
+      delete[] mbstr; 
+    }
+  } 
+}
+
+
+float MainWindow::getParameterFloat(QString parameter) {
+  long r;
+  float pValue = 0.0f; 
+  if (libraryLoaded) {
+    VB_GetParameterFloat getParameter = (VB_GetParameterFloat) lib->resolve("VBVMR_GetParameterFloat");
+    if (getParameter) {
+      char *mbstr = new char[1024]; 
+      strcpy(mbstr,"strip[0].mute");
+      r = getParameter(mbstr, &pValue);
+      qDebug() << "Parameter Value: " << pValue; 
+      delete[] mbstr; 
+    }
+  }
+
+  return pValue; 
+} 

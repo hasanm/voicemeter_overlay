@@ -1,5 +1,6 @@
 #include <QtWidgets>
 
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QActionGroup;
@@ -15,7 +16,8 @@ QT_END_NAMESPACE
 typedef long (*VB_Login)();
 typedef long (*VB_Logout)();
 typedef long (*VB_MacroButton_GetStatus) (long, float *, long);
-typedef long (*VB_SetParameterFloat) (char *, float); 
+typedef long (*VB_SetParameterFloat) (char *, float);
+typedef long (*VB_GetParameterFloat) (char *, float*); 
 
 class MainWindow : public QMainWindow
 {
@@ -44,4 +46,6 @@ private:
   void logout();
   void getMacroStatus();
   void toggleMute();
+  void setParameterFloat(QString parameter, float pValue);
+  float getParameterFloat(QString parameter);
 };
