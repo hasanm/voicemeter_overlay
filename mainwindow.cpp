@@ -5,19 +5,43 @@
 #include <QHBoxLayout>
 #include <QIcon>
 #include "mainwindow.h"
-#include <QStandardItem>
-#include <QStandardItemModel>
-#include <QTableWidget>
-#include <QTableWidgetItem>
 #include "VoicemeeterRemote.h"
-#include "vmr_client.h"
 
+// Crosslink between Qt class and win callback
+MainWindow *mwReference;
+
+
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+  if (nCode == HC_ACTION) {
+    switch (wParam) { 
+      // Pass KeyDown/KeyUp messages for Qt class to logicize
+    case WM_KEYDOWN:
+      mwReference->keyDown(PKBDLLHOOKSTRUCT(lParam)->vkCode);
+      break;
+    case WM_KEYUP:
+      mwReference->keyUp(PKBDLLHOOKSTRUCT(lParam)->vkCode);
+      break;
+    }
+  }
+  return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+MainWindow::~MainWindow(){
+  // Be friendly! Remove hooks!
+  UnhookWindowsHookEx(hhkLowLevelKybd);  
+} 
 
 MainWindow::MainWindow()
   :libraryLoaded(false),
    mute (false)
 {
   // qApp->setStyleSheet("QLabel { color: red; font: bold 14px;}");
+
+  mwReference = this;
+
+  // Install the low-level keyboard & mouse hooks
+  hhkLowLevelKybd = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, 0, 0);
   
   QWidget *root = new QWidget(this);
   QWidget *top = new QWidget(this);
@@ -168,4 +192,15 @@ float MainWindow::getParameterFloat(QString parameter) {
   }
 
   return pValue; 
+}
+
+void MainWindow::keyDown(DWORD key)
+{
+  if (key == VK_F24) {
+    qDebug() << "F24 Presed";
+    toggleMute();
+  }
+}
+
+void MainWindow::keyUp(DWORD key){
 } 
