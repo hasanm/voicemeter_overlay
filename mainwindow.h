@@ -35,7 +35,7 @@ class MainWindow : public QMainWindow
 
 private:
   int totalItems = 3;
-  QPushButton *loadButton;
+  QPushButton *speakerButton;
   QPushButton *quitButton;
   QPushButton *muteButton; 
   QComboBox* outputSelection;
@@ -47,12 +47,15 @@ private:
   bool libraryLoaded;
   bool mute;
 
+  bool speakerMute; 
+
   HHOOK hhkLowLevelKybd;  
 
 
   void logout();
   void getMacroStatus();
   void toggleMute();
+  void toggleSpeaker(); 
   void setParameterFloat(QString parameter, float pValue);
   float getParameterFloat(QString parameter);
 };

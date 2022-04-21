@@ -34,7 +34,8 @@ MainWindow::~MainWindow(){
 
 MainWindow::MainWindow()
   :libraryLoaded(false),
-   mute (false)
+   mute (false),
+   speakerMute(false)
 {
   // qApp->setStyleSheet("QLabel { color: red; font: bold 14px;}");
 
@@ -57,6 +58,11 @@ MainWindow::MainWindow()
   muteButton->setStyleSheet("background-color:green");  
   connect(muteButton, &QPushButton::clicked, this, &MainWindow::toggleMute);
   topLayout->addWidget(muteButton);
+
+  speakerButton = new QPushButton(QString("Toggle Speaker"), this);
+  speakerButton->setStyleSheet("background-color;green");
+  connect(speakerButton, &QPushButton::clicked, this, &MainWindow::toggleSpeaker);
+  topLayout->addWidget(speakerButton); 
 
   // QPushButton *macroButton = new QPushButton(QString("GetMacroStatus"), this);
   // connect(macroButton, &QPushButton::clicked, this, &MainWindow::getMacroStatus);
@@ -105,7 +111,7 @@ void MainWindow::setWindowSizeLocation() {
     qDebug() << "Hello " << rec.width() << " x " << rec.height();
 
     // int targetWidth = this->width();
-    int targetWidth = 200;
+    int targetWidth = 300;
 
     int height = 180;
     int width = rec.width();
@@ -162,32 +168,41 @@ void MainWindow::toggleMute(){
   }
 }
 
+void MainWindow::toggleSpeaker() {
+  if (speakerMute) {
+    speakerMute = false;
+    speakerButton->setStyleSheet("background-color:green");
+    this->setParameterFloat(QString("strip[3].A1"), 1.0f);
+    this->setParameterFloat(QString("strip[4].A1"), 1.0f);
+  }  else {
+    speakerMute = true;
+    speakerButton->setStyleSheet("background-color:red");
+    this->setParameterFloat(QString("strip[3].A1"), 0.0f);
+    this->setParameterFloat(QString("strip[4].A1"), 0.0f);
+  } 
+} 
+
 void MainWindow::setParameterFloat(QString parameter, float pValue) {
   long r;
+  char target[1024];
+  strcpy_s(target, parameter.toStdString().c_str());
   if (libraryLoaded) {
     VB_SetParameterFloat setParameter = (VB_SetParameterFloat) lib->resolve("VBVMR_SetParameterFloat");
     if (setParameter) {
-      char *mbstr = new char[1024]; 
-      strcpy(mbstr,"strip[0].mute");
-      r = setParameter(mbstr, pValue);
-      qDebug() << "Parameter Value: " << r; 
-      delete[] mbstr; 
+      r = setParameter(target, pValue);
     }
   } 
 }
-
-
 float MainWindow::getParameterFloat(QString parameter) {
   long r;
+  char target[1024];
+  strcpy_s(target, parameter.toStdString().c_str());
   float pValue = 0.0f; 
   if (libraryLoaded) {
     VB_GetParameterFloat getParameter = (VB_GetParameterFloat) lib->resolve("VBVMR_GetParameterFloat");
-    if (getParameter) {
-      char *mbstr = new char[1024]; 
-      strcpy(mbstr,"strip[0].mute");
-      r = getParameter(mbstr, &pValue);
+    if (getParameter) { 
+      r = getParameter(target, &pValue);
       qDebug() << "Parameter Value: " << pValue; 
-      delete[] mbstr; 
     }
   }
 
@@ -199,6 +214,9 @@ void MainWindow::keyDown(DWORD key)
   if (key == VK_F24) {
     qDebug() << "F24 Presed";
     toggleMute();
+  } else if (key == VK_F23 ) {
+    qDebug() << "F23 Pressed";
+    toggleSpeaker();
   }
 }
 
