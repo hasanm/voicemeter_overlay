@@ -172,11 +172,13 @@ void MainWindow::toggleSpeaker() {
   if (speakerMute) {
     speakerMute = false;
     speakerButton->setStyleSheet("background-color:green");
+    this->setParameterFloat(QString("strip[1].A1"), 1.0f);
     this->setParameterFloat(QString("strip[3].A1"), 1.0f);
     this->setParameterFloat(QString("strip[4].A1"), 1.0f);
   }  else {
     speakerMute = true;
     speakerButton->setStyleSheet("background-color:red");
+    this->setParameterFloat(QString("strip[1].A1"), 0.0f);
     this->setParameterFloat(QString("strip[3].A1"), 0.0f);
     this->setParameterFloat(QString("strip[4].A1"), 0.0f);
   } 
