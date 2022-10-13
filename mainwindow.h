@@ -37,10 +37,18 @@ private:
   int totalItems = 3;
   QPushButton *speakerButton;
   QPushButton *quitButton;
-  QPushButton *muteButton; 
+  QPushButton *muteButton;
+  QPushButton *cursorButton;
+  QPushButton *resetButton;
+
   QComboBox* outputSelection;
   QStringList outputList = {"A1", "A3"};
   QVBoxLayout *contentLayout;
+
+  QLabel *clockLabel;
+  QTimer *timer;
+  QTime myTime;
+  int villCount;
 
   QLibrary *lib; 
 
@@ -56,8 +64,12 @@ private:
   void getMacroStatus();
   void toggleMute();
   void toggleSpeaker(); 
+  void centerMouseCursor();
   void setParameterFloat(QString parameter, float pValue);
   float getParameterFloat(QString parameter);
+
+  void onReset();
+  void onTimeout();
 };
 
 #endif // MAINWINDOW_H

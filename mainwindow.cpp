@@ -46,7 +46,8 @@ MainWindow::MainWindow()
   
   QWidget *root = new QWidget(this);
   QWidget *top = new QWidget(this);
-  QWidget *content = new QWidget(this);
+
+
 
   /* Top Layout */ 
   QHBoxLayout *topLayout = new QHBoxLayout(top);
@@ -64,6 +65,32 @@ MainWindow::MainWindow()
   connect(speakerButton, &QPushButton::clicked, this, &MainWindow::toggleSpeaker);
   topLayout->addWidget(speakerButton); 
 
+  top->setLayout(topLayout);
+
+  /* Second Layout */
+  QWidget *middle = new QWidget(this);
+  QHBoxLayout *contentLayout = new QHBoxLayout(middle);
+
+  // cursorButton = new QPushButton(QString("Center Curosr"), this);
+  // connect(cursorButton, &QPushButton::clicked, this, &MainWindow::centerMouseCursor);
+  // contentLayout->addWidget(cursorButton);
+
+  clockLabel = new QLabel(QString("00:00:00"));
+  clockLabel->setStyleSheet("color: yellow");
+  contentLayout->addWidget(clockLabel);
+
+  resetButton = new QPushButton(QString("Reset Time"), this);
+  connect(resetButton, &QPushButton::clicked, this, &MainWindow::onReset);
+  contentLayout->addWidget(resetButton);
+
+  middle->setLayout(contentLayout);
+
+  myTime.setHMS(0,0,0,0);
+  timer = new QTimer(this);
+  connect(timer, &QTimer::timeout, this, &MainWindow::onTimeout);
+  timer->start(590);
+  villCount = 3;
+
   // QPushButton *macroButton = new QPushButton(QString("GetMacroStatus"), this);
   // connect(macroButton, &QPushButton::clicked, this, &MainWindow::getMacroStatus);
   // topLayout->addWidget(macroButton);
@@ -73,16 +100,18 @@ MainWindow::MainWindow()
   // connect(outputSelection, &QComboBox::activated, this, &MainWindow::onOutputSelected); 
   // topLayout->addWidget(outputSelection); 
 
-  top->setLayout(topLayout);
+
 
   /* Content Layout */
   
-  contentLayout = new QVBoxLayout(content);
   /* Root Layout */
   QVBoxLayout *rootLayout = new QVBoxLayout(root);
 
+  // rootLayout->setSpacing(0);
+  // rootLayout->setMargin(0);
+
   rootLayout->addWidget(top);
-  rootLayout->addWidget(content);  
+  rootLayout->addWidget(middle);
   setCentralWidget(root);
 
   // Transparency
@@ -184,6 +213,17 @@ void MainWindow::toggleSpeaker() {
   } 
 } 
 
+void MainWindow::centerMouseCursor() {
+    QScreen *screen = QGuiApplication::primaryScreen();
+    QRect rec = screen->availableGeometry();
+
+    int y = rec.height() / 2;
+    int x = rec.width() / 2;
+
+    SetCursorPos(x,y);
+
+}
+
 void MainWindow::setParameterFloat(QString parameter, float pValue) {
   long r;
   char target[1024];
@@ -219,8 +259,26 @@ void MainWindow::keyDown(DWORD key)
   } else if (key == VK_F23 ) {
     qDebug() << "F23 Pressed";
     toggleSpeaker();
+  } else if (key == VK_F22 ) {
+      qDebug() << "F22 Pressed";
+      centerMouseCursor();
   }
 }
 
 void MainWindow::keyUp(DWORD key){
 } 
+
+void MainWindow::onReset() {
+    villCount = 3;
+    myTime.setHMS(0,0,0);
+}
+
+void MainWindow::onTimeout() {
+    myTime = myTime.addSecs(1);
+    QTime zero(0,0,0);
+    int totalSeconds = zero.secsTo(myTime);
+    if (totalSeconds %25 == 0) {
+        villCount++;
+    }
+    clockLabel->setText(QString("%1 : %2").arg(myTime.toString(QStringLiteral("hh:mm:ss"))).arg(villCount));
+}
