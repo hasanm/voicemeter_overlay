@@ -68,12 +68,10 @@ MainWindow::MainWindow()
   top->setLayout(topLayout);
 
   /* Second Layout */
+  /*
   QWidget *middle = new QWidget(this);
   QHBoxLayout *contentLayout = new QHBoxLayout(middle);
 
-  // cursorButton = new QPushButton(QString("Center Curosr"), this);
-  // connect(cursorButton, &QPushButton::clicked, this, &MainWindow::centerMouseCursor);
-  // contentLayout->addWidget(cursorButton);
 
   clockLabel = new QLabel(QString("00:00:00"));
   clockLabel->setStyleSheet("color: yellow");
@@ -90,15 +88,8 @@ MainWindow::MainWindow()
   connect(timer, &QTimer::timeout, this, &MainWindow::onTimeout);
   timer->start(590);
   villCount = 3;
+  */
 
-  // QPushButton *macroButton = new QPushButton(QString("GetMacroStatus"), this);
-  // connect(macroButton, &QPushButton::clicked, this, &MainWindow::getMacroStatus);
-  // topLayout->addWidget(macroButton);
-
-  // outputSelection = new QComboBox(this);
-  // outputSelection->addItems(outputList);
-  // connect(outputSelection, &QComboBox::activated, this, &MainWindow::onOutputSelected); 
-  // topLayout->addWidget(outputSelection); 
 
 
 
@@ -107,11 +98,9 @@ MainWindow::MainWindow()
   /* Root Layout */
   QVBoxLayout *rootLayout = new QVBoxLayout(root);
 
-  // rootLayout->setSpacing(0);
-  // rootLayout->setMargin(0);
 
   rootLayout->addWidget(top);
-  rootLayout->addWidget(middle);
+  // rootLayout->addWidget(middle);
   setCentralWidget(root);
 
   // Transparency
