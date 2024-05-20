@@ -10,13 +10,13 @@ class QLabel;
 class QComboBox;
 class QVBoxLayout;
 class QIcon;
-class QLibrary; 
+class QLibrary;
 QT_END_NAMESPACE
 
 typedef long (*VB_Login)();
 typedef long (*VB_Logout)();
 typedef long (*VB_SetParameterFloat) (char *, float);
-typedef long (*VB_GetParameterFloat) (char *, float*); 
+typedef long (*VB_GetParameterFloat) (char *, float*);
 
 class MainWindow : public QMainWindow
 {
@@ -32,9 +32,18 @@ class MainWindow : public QMainWindow
   void keyDown(DWORD key);
   void keyUp(DWORD key);
 
+protected:
+  bool eventFilter(QObject *object, QEvent *event) override;
+
 
 private:
   int totalItems = 3;
+  QPushButton *iconButton;
+
+  bool canMoveTopbar = false;
+  bool positionChanged = false;
+  int pressedMouseX, pressedMouseY;
+
   QPushButton *speakerButton;
   QPushButton *quitButton;
   QPushButton *muteButton;
@@ -50,20 +59,20 @@ private:
   QTime myTime;
   int villCount;
 
-  QLibrary *lib; 
+  QLibrary *lib;
 
   bool libraryLoaded;
   bool mute;
 
-  bool speakerMute; 
+  bool speakerMute;
 
-  HHOOK hhkLowLevelKybd;  
+  HHOOK hhkLowLevelKybd;
 
 
   void logout();
   void getMacroStatus();
   void toggleMute();
-  void toggleSpeaker(); 
+  void toggleSpeaker();
   void centerMouseCursor();
   void setParameterFloat(QString parameter, float pValue);
   float getParameterFloat(QString parameter);

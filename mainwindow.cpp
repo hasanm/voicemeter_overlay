@@ -1,6 +1,6 @@
 #include <QtWidgets>
 #include <QLabel>
-#include <QVBoxLayout> 
+#include <QVBoxLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QIcon>
@@ -14,7 +14,7 @@ MainWindow *mwReference;
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
   if (nCode == HC_ACTION) {
-    switch (wParam) { 
+    switch (wParam) {
       // Pass KeyDown/KeyUp messages for Qt class to logicize
     case WM_KEYDOWN:
       mwReference->keyDown(PKBDLLHOOKSTRUCT(lParam)->vkCode);
@@ -29,8 +29,8 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 MainWindow::~MainWindow(){
   // Be friendly! Remove hooks!
-  UnhookWindowsHookEx(hhkLowLevelKybd);  
-} 
+  UnhookWindowsHookEx(hhkLowLevelKybd);
+}
 
 MainWindow::MainWindow()
   :libraryLoaded(false),
@@ -41,29 +41,53 @@ MainWindow::MainWindow()
 
   mwReference = this;
 
+  QIcon windowIcon(":/images/outline_keyboard_hide_black_24dp.png");
+  this->setWindowIcon(windowIcon);
+
   // Install the low-level keyboard & mouse hooks
   hhkLowLevelKybd = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, 0, 0);
-  
+
   QWidget *root = new QWidget(this);
   QWidget *top = new QWidget(this);
 
 
 
-  /* Top Layout */ 
+  /* Top Layout */
   QHBoxLayout *topLayout = new QHBoxLayout(top);
-  quitButton = new QPushButton(QString ("Quit"), this);
-  connect(quitButton, &QPushButton::clicked, this, &MainWindow::onQuit); 
+
+
+
+  iconButton = new QPushButton(this);
+  QIcon iconIcon(":/images/OpenBangla-Keyboard.png");
+  iconButton->setIcon(iconIcon);
+  iconButton->setFixedSize(27,27);
+  iconButton->installEventFilter(this);
+  topLayout->addWidget(iconButton);
+
+
+
+  quitButton = new QPushButton(this);
+  QIcon quitIcon(":/images/outline_close_black_24dp.png");
+  quitButton->setIcon(quitIcon);
+  quitButton->setFixedSize(27,27);
+  connect(quitButton, &QPushButton::clicked, this, &MainWindow::onQuit);
   topLayout->addWidget(quitButton);
 
-  muteButton = new QPushButton(QString("Toggle Mute"), this);
-  muteButton->setStyleSheet("background-color:green");  
+  muteButton = new QPushButton(this);
+  muteButton->setStyleSheet("background-color:green");
+  QIcon muteIcon(":/images/outline_keyboard_hide_black_24dp.png");
+  muteButton->setIcon(muteIcon);
+  muteButton->setFixedSize(27,27);
   connect(muteButton, &QPushButton::clicked, this, &MainWindow::toggleMute);
   topLayout->addWidget(muteButton);
 
-  speakerButton = new QPushButton(QString("Toggle Speaker"), this);
+  speakerButton = new QPushButton(this);
   speakerButton->setStyleSheet("background-color;green");
+  QIcon speakerIcon(":/images/outline_settings_black_24dp.png");
+  speakerButton->setIcon(speakerIcon);
+  speakerButton->setFixedSize(27,27);
   connect(speakerButton, &QPushButton::clicked, this, &MainWindow::toggleSpeaker);
-  topLayout->addWidget(speakerButton); 
+  topLayout->addWidget(speakerButton);
 
   top->setLayout(topLayout);
 
@@ -94,7 +118,7 @@ MainWindow::MainWindow()
 
 
   /* Content Layout */
-  
+
   /* Root Layout */
   QVBoxLayout *rootLayout = new QVBoxLayout(root);
 
@@ -104,7 +128,7 @@ MainWindow::MainWindow()
   setCentralWidget(root);
 
   // Transparency
-  setWindowFlags(Qt::Widget | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+  setWindowFlags(Qt::Window | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
   setParent(0); // Create TopLevel-Widget
   setAttribute(Qt::WA_NoSystemBackground, true);
   setAttribute(Qt::WA_TranslucentBackground, true);
@@ -120,51 +144,50 @@ void MainWindow::onQuit() {
 void MainWindow::onOutputSelected(int index) {
   QString outputName;
   outputName = outputList.at(index);
-  qDebug() << "Chose :  " << index << " => " << outputName;  
+  qDebug() << "Chose :  " << index << " => " << outputName;
 }
 
 void MainWindow::setWindowSizeLocation() {
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect rec = screen->availableGeometry();
-    qDebug() << "Hello " << rec.width() << " x " << rec.height();
 
     // int targetWidth = this->width();
-    int targetWidth = 300;
+    int targetWidth = 150;
 
     int height = 180;
     int width = rec.width();
-    int x=(width - targetWidth);
+    int x=(width - targetWidth - 10);
     int y= 50;
     this->setGeometry(x,y,targetWidth,height);
 }
 
 void MainWindow::logout()
 {
-  long r; 
-  if (libraryLoaded) { 
+  long r;
+  if (libraryLoaded) {
     VB_Logout logout = (VB_Login) lib->resolve("VBVMR_Logout");
-    if (logout) {  
+    if (logout) {
       r = logout();
       qDebug() << QString("Logout with status: %1").arg(r);
     }
   }
-} 
+}
 
 void MainWindow::loadVoicemeter(){
-  long r; 
+  long r;
   lib = new QLibrary((QString("C:\\Program Files (x86)\\VB\\Voicemeeter\\VoicemeeterRemote64")));
 
-  if (!lib->load()) { 
+  if (!lib->load()) {
       qDebug() << lib->errorString();
   }
   if (lib->load()){
-    libraryLoaded = true; 
+    libraryLoaded = true;
     qDebug() << "library loaded";
     VB_Login login = (VB_Login) lib->resolve("VBVMR_Login");
-    if (login) {  
+    if (login) {
       r = login();
       qDebug() << QString("Login with status: %1").arg(r);
-    } 
+    }
   } else {
       libraryLoaded = false;
   }
@@ -182,7 +205,7 @@ void MainWindow::toggleMute(){
   } else {
     mute = true;
     muteButton->setStyleSheet("background-color:red");
-    this->setParameterFloat(QString ("strip[0].mute"), 1.0f);    
+    this->setParameterFloat(QString ("strip[0].mute"), 1.0f);
   }
 }
 
@@ -199,8 +222,8 @@ void MainWindow::toggleSpeaker() {
     this->setParameterFloat(QString("strip[1].A1"), 0.0f);
     this->setParameterFloat(QString("strip[3].A1"), 0.0f);
     this->setParameterFloat(QString("strip[4].A1"), 0.0f);
-  } 
-} 
+  }
+}
 
 void MainWindow::centerMouseCursor() {
     QScreen *screen = QGuiApplication::primaryScreen();
@@ -222,22 +245,22 @@ void MainWindow::setParameterFloat(QString parameter, float pValue) {
     if (setParameter) {
       r = setParameter(target, pValue);
     }
-  } 
+  }
 }
 float MainWindow::getParameterFloat(QString parameter) {
   long r;
   char target[1024];
   strcpy_s(target, parameter.toStdString().c_str());
-  float pValue = 0.0f; 
+  float pValue = 0.0f;
   if (libraryLoaded) {
     VB_GetParameterFloat getParameter = (VB_GetParameterFloat) lib->resolve("VBVMR_GetParameterFloat");
-    if (getParameter) { 
+    if (getParameter) {
       r = getParameter(target, &pValue);
-      qDebug() << "Parameter Value: " << pValue; 
+      qDebug() << "Parameter Value: " << pValue;
     }
   }
 
-  return pValue; 
+  return pValue;
 }
 
 void MainWindow::keyDown(DWORD key)
@@ -255,7 +278,7 @@ void MainWindow::keyDown(DWORD key)
 }
 
 void MainWindow::keyUp(DWORD key){
-} 
+}
 
 void MainWindow::onReset() {
     villCount = 3;
@@ -270,4 +293,31 @@ void MainWindow::onTimeout() {
         villCount++;
     }
     clockLabel->setText(QString("%1 : %2").arg(myTime.toString(QStringLiteral("hh:mm:ss"))).arg(villCount));
+}
+
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event) {
+  if (object == iconButton) {
+    if (event->type() == QEvent::MouseButtonPress) {
+      canMoveTopbar = true;
+      positionChanged = false; // reset
+      QMouseEvent *e = (QMouseEvent *) event;
+      pressedMouseX = e->x();
+      pressedMouseY = e->y();
+      event->accept();
+    } else if (event->type() == QEvent::MouseMove) {
+      if (canMoveTopbar) {
+        QMouseEvent *e = (QMouseEvent *) event;
+        iconButton->setCursor(Qt::ClosedHandCursor);
+        move(e->globalX() - pressedMouseX, e->globalY() - pressedMouseY);
+        positionChanged = true;
+      }
+    } else if (event->type() == QEvent::MouseButtonRelease) {
+      canMoveTopbar = false;
+      iconButton->setCursor(Qt::ArrowCursor);
+      event->accept();
+    }
+  }
+
+  return QObject::eventFilter(object, event);
 }

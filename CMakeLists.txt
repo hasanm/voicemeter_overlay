@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-set(CMAKE_PREFIX_PATH  "${CMAKE_PREFIX_PATH};c:/Qt/6.2.4/msvc2019_64")
+set(CMAKE_PREFIX_PATH  "${CMAKE_PREFIX_PATH};c:/Qt/6.5.2/msvc2019_64")
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
 set(CMAKE_AUTOMOC ON)
@@ -15,7 +15,8 @@ set(CMAKE_AUTOUIC ON)
 add_executable( ${CMAKE_PROJECT_NAME}
                 WIN32
                 main.cpp
-                mainwindow.cpp)
+                mainwindow.cpp
+                images.qrc)
 
 
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
