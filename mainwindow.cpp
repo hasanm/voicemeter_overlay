@@ -41,7 +41,7 @@ MainWindow::MainWindow()
 
   mwReference = this;
 
-  QIcon windowIcon(":/images/outline_keyboard_hide_black_24dp.png");
+  QIcon windowIcon(":/images/OpenBangla-Keyboard.png");
   this->setWindowIcon(windowIcon);
 
   // Install the low-level keyboard & mouse hooks
