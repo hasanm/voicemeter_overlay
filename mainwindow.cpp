@@ -66,12 +66,7 @@ MainWindow::MainWindow()
 
 
 
-  quitButton = new QPushButton(this);
-  QIcon quitIcon(":/images/outline_close_black_24dp.png");
-  quitButton->setIcon(quitIcon);
-  quitButton->setFixedSize(27,27);
-  connect(quitButton, &QPushButton::clicked, this, &MainWindow::onQuit);
-  topLayout->addWidget(quitButton);
+
 
   muteButton = new QPushButton(this);
   muteButton->setStyleSheet("background-color:green");
@@ -88,6 +83,15 @@ MainWindow::MainWindow()
   speakerButton->setFixedSize(27,27);
   connect(speakerButton, &QPushButton::clicked, this, &MainWindow::toggleSpeaker);
   topLayout->addWidget(speakerButton);
+
+  quitButton = new QPushButton(this);
+  QIcon quitIcon(":/images/outline_close_black_24dp.png");
+  quitButton->setIcon(quitIcon);
+  quitButton->setFixedSize(27,27);
+  connect(quitButton, &QPushButton::clicked, this, &MainWindow::onQuit);
+  topLayout->addWidget(quitButton);
+
+  topLayout->setSpacing(0);
 
   top->setLayout(topLayout);
 
@@ -152,9 +156,9 @@ void MainWindow::setWindowSizeLocation() {
     QRect rec = screen->availableGeometry();
 
     // int targetWidth = this->width();
-    int targetWidth = 150;
+    int targetWidth = 120;
 
-    int height = 180;
+    int height = 35;
     int width = rec.width();
     int x=(width - targetWidth - 10);
     int y= 50;
@@ -309,7 +313,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
       if (canMoveTopbar) {
         QMouseEvent *e = (QMouseEvent *) event;
         iconButton->setCursor(Qt::ClosedHandCursor);
-        move(e->globalX() - pressedMouseX, e->globalY() - pressedMouseY);
+        move(e->globalX() - pressedMouseX - 35, e->globalY() - pressedMouseY - 35);
         positionChanged = true;
       }
     } else if (event->type() == QEvent::MouseButtonRelease) {
